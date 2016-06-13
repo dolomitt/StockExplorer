@@ -3,4 +3,4 @@
 Small Project to compute strategy for stock trading
 
 #References
-https://github.com/dolomitt/StockExplorer/new/master?readme=1
+http://www.xavierdupre.fr/site2013/documents/reports/finance_autostrat.pdf
