@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "Stock Capture Extension",
+  "version": "1.0",
+  "background": {
+    "persistent": false,
+    "scripts": ["jquery-3.0.0.min.js","background.js"]
+  },
+  "content_scripts": [{
+    "matches": ["*://*.binck.fr/*"],
+    "js": ["content.js"]
+  }],
+  "browser_action": {
+    "default_title": "Stock Capture Extension"
+  },
+
+  "permissions": ["activeTab", "tabs", "alarms", "http://localhost:50241/api/values"]
+}
