@@ -21,9 +21,11 @@ namespace stock.Domain
     public abstract class Transaction
     {
         public decimal Price;
-        public int Count;
+        public long Count;
         public DateTime Date;
         public decimal BankFee;
+
+        public Transaction LinkedTransaction { get; set; }
 
         /// <summary>
         /// Transaction Amount Excluding Bank Fees

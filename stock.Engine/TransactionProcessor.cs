@@ -15,12 +15,11 @@ namespace stock.Engine
         public Vault Vault => vault;
         private readonly Vault vault;
 
-        public TransactionProcessor(decimal initialAmount, decimal highSellingThreshold, decimal lowSellingThreshold)
+        public TransactionProcessor(ProcessCondition c)
         {
-            this.highSellingThreshold = highSellingThreshold;
-            this.lowSellingThreshold = lowSellingThreshold;
-
-            vault = new Vault(initialAmount, ComputeTransactionFee);
+            this.highSellingThreshold = c.HighPrice;
+            this.lowSellingThreshold = c.LowPrice;
+            vault = new Vault(c.InitialAmount, ComputeTransactionFee);
         }
 
         /// <summary>
@@ -44,37 +43,57 @@ namespace stock.Engine
 
         public void Process(Vault vault, StockPrice stockPrice)
         {
-            //No Current Transaction
-            if (vault.CurrentTransaction == null)
+            try
             {
-                var stockBuyCount = (int)Math.Floor(vault.Money / stockPrice.Price);
-                var transaction = Create(TransactionType.Buy, stockBuyCount, stockPrice.Date, stockPrice.Price);
-
-                vault.Add(transaction);
-            }
-            else
-            {
-                var highThresholdPrice = vault.CurrentTransaction.Price * ((decimal)100 + highSellingThreshold) / (decimal)100;
-                var lowThresholdPrice = vault.CurrentTransaction.Price * ((decimal)100 - lowSellingThreshold) / (decimal)100;
-
-                decimal sellingPrice = decimal.MinusOne;
-
-                if (stockPrice.Price > highThresholdPrice)
-                    sellingPrice = highThresholdPrice;
-                else if (stockPrice.Price < lowThresholdPrice)
-                    sellingPrice = lowThresholdPrice;
-
-                if (sellingPrice != decimal.MinusOne)
+                //No Current Transaction
+                if (vault.CurrentTransaction == null)
                 {
-                    var closingTransaction = Create(TransactionType.Sell, vault.CurrentTransaction.Count,
-                        stockPrice.Date, sellingPrice);
+                    var stockBuyCount = (long)Math.Floor(vault.Money / stockPrice.Price);
+                    var transaction = Create(TransactionType.Buy, stockBuyCount, stockPrice.Date, stockPrice.Price);
 
-                    vault.Add(closingTransaction);
+                    while (transaction.GetAmount() + ComputeTransactionFee(transaction.GetAmount()) > vault.Money)
+                    { 
+                        stockBuyCount--;
+                        transaction = Create(TransactionType.Buy, stockBuyCount, stockPrice.Date, stockPrice.Price);
+                    }
+
+                    bool result = vault.Add(transaction);
+
+                    if (!result)
+                        throw new TransactionRefusedException() {Transaction = transaction};
                 }
+                else
+                {
+                    var highThresholdPrice = vault.CurrentTransaction.Price * ((decimal)100 + highSellingThreshold) / (decimal)100;
+                    var lowThresholdPrice = vault.CurrentTransaction.Price * ((decimal)100 - lowSellingThreshold) / (decimal)100;
+
+                    var sellingPrice = decimal.MinusOne;
+
+                    if (stockPrice.Price > highThresholdPrice)
+                        sellingPrice = highThresholdPrice;
+                    else if (stockPrice.Price < lowThresholdPrice)
+                        sellingPrice = lowThresholdPrice;
+
+                    if (sellingPrice != decimal.MinusOne)
+                    {
+                        var transaction = Create(TransactionType.Sell, vault.CurrentTransaction.Count,
+                            stockPrice.Date, sellingPrice);
+
+                        var result = vault.Add(transaction);
+
+                        if (!result)
+                            throw new TransactionRefusedException() { Transaction = transaction };
+                    }
+                }
+            }
+            catch (TransactionRefusedException ex)
+            {
+                Console.WriteLine(ex.ToString());
+                throw;
             }
         }
 
-        private static Transaction Create(TransactionType transType, int count, DateTime date, decimal price)
+        private static Transaction Create(TransactionType transType, long count, DateTime date, decimal price)
         {
             if (transType == TransactionType.Buy)
             {
@@ -105,5 +124,17 @@ namespace stock.Engine
             Buy,
             Sell
         }
+    }
+
+    public class TransactionRefusedException : Exception
+    {
+        public Transaction Transaction { get; set; }
+    }
+
+    public struct ProcessCondition
+    {
+        public decimal InitialAmount;
+        public decimal HighPrice;
+        public decimal LowPrice;
     }
 }

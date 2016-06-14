@@ -84,6 +84,7 @@ namespace stock.Domain
                     this.transactions.Add(transaction);
 
                     money += transaction.GetAmount() - transaction.BankFee;
+                    transaction.LinkedTransaction = currentTransaction;
                     currentTransaction = null;
 
                     return true;

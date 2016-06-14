@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using stock.Domain;
 using stock.Engine;
 
@@ -20,23 +22,72 @@ namespace stock.console
 
                 IDataLoader loader = new DataLoader.DataLoader(transactionSource);
 
-                for (var initialAmount = (decimal)1000.0; initialAmount < (decimal)30000; initialAmount += 1000)
-                { 
-                    for (var highPrice = (decimal)0.00; highPrice < (decimal)2; highPrice += (decimal)0.05)
-                    {
-                        for (var lowPrice = (decimal) 0.00; lowPrice < (decimal) 2; lowPrice += (decimal)0.05)
-                        {
-                            var processor = new TransactionProcessor(initialAmount, highPrice, lowPrice);
+                decimal amountIncrement = (decimal)1000;
+                decimal amountMin = (decimal)1000;
+                decimal amountMax = (decimal)30000;
 
-                            var enumerator = loader.Read();
+                decimal highPriceMin = (decimal)0;
+                decimal highPriceMax = (decimal)2;
+                decimal highPriceIncrement = (decimal)0.1;
 
-                            while (enumerator.MoveNext())
-                                processor.Process(processor.Vault, enumerator.Current);
+                decimal lowPriceMin = (decimal)0;
+                decimal lowPriceMax = (decimal)2;
+                decimal lowPriceIncrement = (decimal)0.1;
 
-                            result.Add(string.Format("{0},{1},{2},{3},{4},{5}", initialAmount, highPrice, lowPrice, processor.Vault.GetMargin(), processor.Vault.GetTotalBankFees(), processor.Vault.GetTransactionCount()));
-                        }
-                    }
-                }
+                double totalCount = Convert.ToDouble((amountMax - amountMin) / amountIncrement * ((highPriceMax - highPriceMin) / highPriceIncrement) * ((lowPriceMax - lowPriceMin) / lowPriceIncrement));
+
+                var tasks = new List<Task>();
+
+                //for (var initialAmount = amountMin; initialAmount < amountMax; initialAmount += amountIncrement)
+                //    for (var highPrice = highPriceMin; highPrice < highPriceMax; highPrice += highPriceIncrement)
+                //        for (var lowPrice = lowPriceMin; lowPrice < lowPriceMax; lowPrice += lowPriceIncrement)
+                //        {
+                //            ProcessCondition c = new ProcessCondition()
+                //            {
+                //                HighPrice = highPrice,
+                //                LowPrice = lowPrice,
+                //                InitialAmount = initialAmount
+                //            };
+
+                //            var t = Task.Run(() =>
+                //            {
+                //                var processor = new TransactionProcessor(c);
+
+                //                var enumerator = loader.Read();
+
+                //                while (enumerator.MoveNext())
+                //                    processor.Process(processor.Vault, enumerator.Current);
+
+                //                result.Add(string.Format("{0},{1},{2},{3},{4},{5}", c.InitialAmount, c.HighPrice, c.LowPrice, processor.Vault.GetMargin(), processor.Vault.GetTotalBankFees(), processor.Vault.GetTransactionCount()));
+                //                Console.WriteLine("{0},{1},{2},{3},{4},{5}", c.InitialAmount, c.HighPrice, c.LowPrice, processor.Vault.GetMargin(), processor.Vault.GetTotalBankFees(), processor.Vault.GetTransactionCount());
+                //            });
+
+                //            tasks.Add(t);
+                //        }
+
+                ProcessCondition c = new ProcessCondition()
+                {
+                    HighPrice = (decimal)1.8,
+                    LowPrice = (decimal)0.2,
+                    InitialAmount = (decimal)3000
+                };
+
+                var t = Task.Run(() =>
+                {
+                    var processor = new TransactionProcessor(c);
+
+                    var enumerator = loader.Read();
+
+                    while (enumerator.MoveNext())
+                        processor.Process(processor.Vault, enumerator.Current);
+
+                    result.Add(string.Format("{0},{1},{2},{3},{4},{5}", c.InitialAmount, c.HighPrice, c.LowPrice, processor.Vault.GetMargin(), processor.Vault.GetTotalBankFees(), processor.Vault.GetTransactionCount()));
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5}", c.InitialAmount, c.HighPrice, c.LowPrice, processor.Vault.GetMargin(), processor.Vault.GetTotalBankFees(), processor.Vault.GetTransactionCount());
+                });
+
+                tasks.Add(t);
+
+                Task.WaitAll(tasks.ToArray());
 
                 if (File.Exists(resultFile))
                     File.Delete(resultFile);
@@ -46,7 +97,6 @@ namespace stock.console
 
                 //Write to file
                 File.AppendAllLines(resultFile, result);
-
             }
             catch (Exception ex)
             {

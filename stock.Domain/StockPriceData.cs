@@ -10,6 +10,7 @@ namespace stock.Domain
         public decimal Low;
         public decimal Close;
         public decimal AdjClose;
+        public long Volume;
 
         public override string ToString()
         {

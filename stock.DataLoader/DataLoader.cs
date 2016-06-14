@@ -46,7 +46,7 @@ namespace stock.DataLoader
                     if (line == null)
                         continue;
 
-                    var data = line.Split(',');
+                    var data = line.Split('\t');
 
                     if (lineNumber == 1)
                         continue;
@@ -58,10 +58,12 @@ namespace stock.DataLoader
                         High = decimal.Parse(data[2]),
                         Low = decimal.Parse(data[3]),
                         Close = decimal.Parse(data[4]),
-                        AdjClose = decimal.Parse(data[5])
+                        Volume = long.Parse(data[5]),
+                        AdjClose = decimal.Parse(data[6])
                     };
 
-                    result.Add(linedata);
+                    if (linedata.Date > new DateTime(2016,1,1))
+                        result.Add(linedata);
                 }
             }
 
