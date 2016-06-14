@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace stock.Domain
+namespace stock.DataLoader
 {
     public class StockPriceData
     {

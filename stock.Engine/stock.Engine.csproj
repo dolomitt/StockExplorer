@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProcessCondition.cs" />
+    <Compile Include="TransactionFactory.cs" />
     <Compile Include="TransactionProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransactionRefusedException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\stock.Domain\stock.Domain.csproj">

@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D6852405-FEEA-4ECA-9E6F-5B31274C9177}</ProjectGuid>
+    <ProjectGuid>{6F78D9FC-1AA6-4BDF-B302-26F3966E188A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>stock.DataLoader</RootNamespace>
-    <AssemblyName>stock.DataLoader</AssemblyName>
+    <RootNamespace>stock.Strategy</RootNamespace>
+    <AssemblyName>stock.Strategy</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,10 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataLoader.cs" />
+    <Compile Include="StandardStockStrategy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StockPriceData.cs" />
-    <Compile Include="StockPriceEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\stock.Domain\stock.Domain.csproj">

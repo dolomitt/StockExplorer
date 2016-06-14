@@ -42,10 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IDataLoader.cs" />
+    <Compile Include="IStockTradingStrategy.cs" />
+    <Compile Include="ITransactionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StockPrice.cs" />
-    <Compile Include="StockPriceData.cs" />
     <Compile Include="Transaction.cs" />
+    <Compile Include="TransactionType.cs" />
     <Compile Include="Vault.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

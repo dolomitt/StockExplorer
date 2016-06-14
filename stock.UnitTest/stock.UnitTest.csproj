@@ -67,6 +67,10 @@
       <Project>{31a0b445-18ca-4180-a2dd-1961ba11f58a}</Project>
       <Name>stock.Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\stock.Strategy\stock.Strategy.csproj">
+      <Project>{6f78d9fc-1aa6-4bdf-b302-26f3966e188a}</Project>
+      <Name>stock.Strategy</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
